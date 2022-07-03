@@ -26,6 +26,10 @@ async fn main() {
         .await
         .expect("couldn't run migrations");
 
+    muxa::css::generate_css_from_inventory("static/css/zephyr.css")
+        .await
+        .unwrap();
+
     let config = Config::from_env();
 
     let app = routes::router(pool, config);

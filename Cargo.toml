@@ -6,8 +6,7 @@ edition = "2021"
 default-run = "muxa_template"
 
 [dependencies]
-muxa = { git = "https://github.com/annieversary/muxa", rev = "5d1d0a56ef9d547fdff845d1d5dc608e758b453d", default-features = false, features = ["sqlite"] }
-# muxa = { path = "../muxa", default-features = false, features = ["sqlite"] }
+muxa = { git = "https://github.com/annieversary/muxa", rev = "86bfc2512af108621250b4af7fc7d93d6d3a6f0e" }
 
 axum = { version = "0.5.1", features = ["headers", "multipart"] }
 axum-extra = { version = "0.2.1", features = ["typed-routing"] }
