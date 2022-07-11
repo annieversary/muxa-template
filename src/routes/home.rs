@@ -9,7 +9,7 @@ pub async fn home(
         h1 {
             "muxa!"
         }
-        p {
+        p."m[0]" {
             "welcome to muxa, this is a template"
         }
     };

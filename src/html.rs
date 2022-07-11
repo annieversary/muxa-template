@@ -4,7 +4,7 @@ use axum::extract::{FromRequest, RequestParts};
 use maud::{html, Markup};
 
 use crate::routes::*;
-use muxa::html::*;
+use muxa::html::{components::*, *};
 
 pub type HtmlContextBuilder = muxa::html::HtmlContextBuilder<InternalContext, NamedRoute>;
 
@@ -23,6 +23,8 @@ where
     }
 }
 
+pub const ASSET_V: u16 = muxa::reexports::const_random!(u16);
+
 impl Template<NamedRoute> for InternalContext {
     fn head(ctx: &HtmlContext<Self, NamedRoute>) -> Markup {
         let title = ctx.get_title();
@@ -32,8 +34,8 @@ impl Template<NamedRoute> for InternalContext {
             meta charset="utf-8";
             meta name="viewport" content="width=device-width, initial-scale=1";
 
-            // link rel="stylesheet" href="/css/custom.css?v=1";
-            link rel="stylesheet" href="/css/zephyr.css?v=1";
+            @stylesheet("/css/custom.css", ASSET_V);
+            @stylesheet("/css/zephyr.css", ASSET_V);
             (ctx.section_get("styles"))
 
             meta property="og:title" content=(title);
