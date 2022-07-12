@@ -3,13 +3,18 @@ use std::convert::Infallible;
 use axum::extract::{FromRequest, RequestParts};
 use maud::{html, Markup};
 
-use crate::routes::*;
-use muxa::html::{components::*, *};
+use crate::{routes::*, theme::Theme};
+use muxa::{
+    html::{components::*, *},
+    theme::*,
+};
 
 pub type HtmlContextBuilder = muxa::html::HtmlContextBuilder<InternalContext, NamedRoute>;
 
 #[derive(Clone)]
-pub struct InternalContext {}
+pub struct InternalContext {
+    theme: Theme,
+}
 
 #[axum::async_trait]
 impl<B> FromRequest<B> for InternalContext
@@ -18,8 +23,9 @@ where
 {
     type Rejection = Infallible;
 
-    async fn from_request(_req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
-        Ok(InternalContext {})
+    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
+        let ThemeCookie(theme) = ThemeCookie::from_request(req).await.unwrap();
+        Ok(InternalContext { theme })
     }
 }
 
@@ -34,6 +40,7 @@ impl Template<NamedRoute> for InternalContext {
             meta charset="utf-8";
             meta name="viewport" content="width=device-width, initial-scale=1";
 
+            @stylesheet(ctx.inner.theme.css_url(), ASSET_V);
             @stylesheet("/css/custom.css", ASSET_V);
             @stylesheet("/css/zephyr.css", ASSET_V);
             (ctx.section_get("styles"))
