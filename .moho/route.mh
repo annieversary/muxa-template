@@ -1,9 +1,12 @@
 #!/bin/sh
 set -e
 
+if [ ! "$1" = "get-template" ] && [ ! "$1" = "get-vars" ]; then
+
+# normal template-outputing block
+
 # variable declarations
 name=''
-db=''
 
 # parse arguments
 while test $# -gt 0; do
@@ -13,11 +16,6 @@ while test $# -gt 0; do
       name="$1"
       shift
       ;;
-    --db)
-      shift
-      db="$1"
-      shift
-      ;;
     *)
       echo "route:"
       echo "generates file at src/routes/NAME.rs"
@@ -25,42 +23,34 @@ while test $# -gt 0; do
       echo "options:"
       echo "-h, --help      show brief help"
       echo "--name NAME     filename (without extension)"
-      echo "--db DB         db type to use (Sqlite/MySql)"
       exit 0
       ;;
   esac
 done
 
-db=${db:-"Sqlite"}
-
 # check that all variables have values
-if [ -z "$db" ]; then
-  echo "Error: No value provided for db"
-  exit 1
-fi
-if [ -z "$name" ]; then
+if [ -z "$name" ] && [ -t 1 ]; then
   echo "Error: No value provided for name"
   exit 1
 fi
 
 out="use super::*;
 
-pub async fn ${name}(
-    _: ${name}Path,
+pub async fn \${name}(
+    _: \${name}Path,
     Extension(html): Extension<HtmlContextBuilder>,
     Extension(_session): Extension<UserSession>,
-    Extension(_pool): Extension<${db}Pool>,
+    Extension(_pool): Extension<\${db}Pool>,
     Extension(_config): Extension<Config>,
 ) -> impl IntoResponse {
     let content = html! {
         h1 {
-            \"${name}\"
+            \\\"\${name}\\\"
         }
     };
 
     Ok::<_, ErrResponse>(html.build(content))
-}
-"
+}"
 if [ -t 1 ] ; then
   mkdir -p "src/routes"
 
@@ -81,4 +71,40 @@ if [ -t 1 ] ; then
   echo "created file at src/routes/${name}.rs";
 else
   echo "$out"
+fi
+
+# end normal block
+fi
+
+# template editing section
+
+if [ "$1" = "get-template" ]; then
+echo "use super::*;
+
+pub async fn \\${name}(
+    _: \\${name}Path,
+    Extension(html): Extension<HtmlContextBuilder>,
+    Extension(_session): Extension<UserSession>,
+    Extension(_pool): Extension<\\${db}Pool>,
+    Extension(_config): Extension<Config>,
+) -> impl IntoResponse {
+    let content = html! {
+        h1 {
+            \\\\"\\${name}\\\\"
+        }
+    };
+
+    Ok::<_, ErrResponse>(html.build(content))
+}"
+fi
+
+if [ "$1" = "get-vars" ]; then
+echo "
+default_path=\"src/routes/name.rs\"
+
+[defaults]
+
+[descriptions]
+
+"
 fi
