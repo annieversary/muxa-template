@@ -1,6 +1,6 @@
 use std::convert::Infallible;
 
-use axum::extract::{FromRequest, RequestParts};
+use axum::{extract::FromRequestParts, http::request::Parts};
 use maud::{html, Markup};
 
 use crate::{routes::*, theme::Theme};
@@ -17,14 +17,14 @@ pub struct InternalContext {
 }
 
 #[axum::async_trait]
-impl<B> FromRequest<B> for InternalContext
+impl<S> FromRequestParts<S> for InternalContext
 where
-    B: Send,
+    S: Send + Sync,
 {
     type Rejection = Infallible;
 
-    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
-        let ThemeCookie(theme) = ThemeCookie::from_request(req).await.unwrap();
+    async fn from_request_parts(req: &mut Parts, s: &S) -> Result<Self, Self::Rejection> {
+        let ThemeCookie(theme) = ThemeCookie::from_request_parts(req, s).await.unwrap();
         Ok(InternalContext { theme })
     }
 }

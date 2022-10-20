@@ -1,7 +1,4 @@
-use axum::{
-    extract::Extension, handler::Handler, http::StatusCode, middleware, response::IntoResponse,
-    Router,
-};
+use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Router};
 use axum_extra::routing::{RouterExt, TypedPath};
 use maud::html;
 use muxa::{config::Config, errors::*, router::RouterExtension, sessions::UserSession};
@@ -19,7 +16,7 @@ pub fn router(pool: SqlitePool, config: Config) -> Router {
             extensions: [],
         })
         .static_dirs(&config, &["css", "js"])
-        .fallback(handler_404.into_service())
+        .fallback(handler_404)
 }
 
 mod home;
